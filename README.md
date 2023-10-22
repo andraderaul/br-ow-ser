@@ -1,4 +1,4 @@
-# br-ow-ser: A Toy Browser Study Project
+# br-ow-ser
 
 ## Overview
 
@@ -19,7 +19,15 @@ This intentional exclusion allows for a focused exploration of fundamental conce
 
 ## Features
 
-- [x] **HTML Parsing:** Converts HTML strings into a Document Object Model (DOM) tree.
+- [x] **HTML Parsing:** Converts HTML strings into a Document Object Model (DOM) tree. This parser works for a few subset of HTML syntax:
+
+  - Balanced tags;
+  - Attributes with quoted values;
+  - Text nodes;
+  - Comments;
+  - Processing Instruction;
+  - Error handling (Non-well-formed markup).
+
 - [x] **CSS Parsing:** Parses CSS strings to handle styling and layout.
 - [x] **Render Tree:** Combines information from the DOM tree and layout engine for rendering.
 - [x] **Layout Engine:** Determines the size and position of each element on the page.
@@ -49,6 +57,6 @@ Ensure you have Rust installed on your machine. If not, you can install it by fo
 
 - Inspired by "The Hard Parts of UI Development" course by Will Sentance on [Frontend Masters](https://frontendmasters.com/courses/hard-parts-ui-dev/).
 
-- [Html spec](https://html.spec.whatwg.org/multipage/introduction.html)
+- [HTML specification](https://html.spec.whatwg.org/multipage/introduction.html)
 
-- Adheres to the HTML specifications outlined in the [HTML specification](https://html.spec.whatwg.org/multipage/introduction.html)
+- [rust-cssparser](https://github.com/servo/rust-cssparsera)
