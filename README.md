@@ -21,8 +21,8 @@ This intentional exclusion allows for a focused exploration of fundamental conce
 
 - [x] **HTML Parsing:** Converts HTML strings into a Document Object Model (DOM) tree.
 - [x] **CSS Parsing:** Parses CSS strings to handle styling and layout.
-- [x] **Layout Engine:** Determines the size and position of each element on the page.
 - [x] **Render Tree:** Combines information from the DOM tree and layout engine for rendering.
+- [x] **Layout Engine:** Determines the size and position of each element on the page.
 - [x] **Painting Engine:** Draws the render tree on the screen.
 - [ ] **JavaScript Engine:** Comprising parsers, interpreters, and compilers.
 
