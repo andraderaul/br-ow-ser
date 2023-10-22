@@ -1,0 +1,4 @@
+{
+  "workbench.colorTheme": "Roseate",
+  "rust-analyzer.linkedProjects": ["./Cargo.toml"]
+}
