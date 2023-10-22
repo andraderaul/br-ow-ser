@@ -1,26 +1,26 @@
-use serde::Serialize;
+//! A simple parser for a tiny subset of CSS.
 
 /// Represents a parsed stylesheet with rules.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Stylesheet {
     pub rules: Vec<Rule>,
 }
 
 /// Represents a CSS rule with selectors and declarations.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Rule {
     pub selectors: Vec<Selector>,
     pub declarations: Vec<Declaration>,
 }
 
 /// Represents a CSS selector.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub enum Selector {
     Simple(SimpleSelector),
 }
 
 /// Represents a simple CSS selector with tag name, id, and class.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct SimpleSelector {
     pub tag_name: Option<String>,
     pub id: Option<String>,
@@ -28,28 +28,31 @@ pub struct SimpleSelector {
 }
 
 /// Represents a CSS declaration with a property name and value.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Declaration {
     pub name: String,
     pub value: Value,
 }
 
 /// Represents a CSS value.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     Keyword(String),
     Length(f32, Unit),
     ColorValue(Color),
+    StringValue(String),
 }
 
 /// Represents a CSS unit.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Unit {
     Px,
+    Rem,
+    Em,
 }
 
 /// Represents a color in CSS.
-#[derive(Debug, Clone, PartialEq, Default, Serialize)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -76,10 +79,33 @@ impl Selector {
 }
 
 impl Value {
+    // Needs improvement EM and REM
+    // because the length is relative to a font-size
+
     /// Converts a CSS value to pixels.
     pub fn to_px(&self) -> f32 {
         match *self {
             Value::Length(f, Unit::Px) => f,
+            Value::Length(f, Unit::Rem) => f / 16.0,
+            Value::Length(f, Unit::Em) => f / 16.0,
+            _ => 0.0,
+        }
+    }
+
+    pub fn to_rem(&self) -> f32 {
+        match *self {
+            Value::Length(f, Unit::Rem) => f,
+            Value::Length(f, Unit::Em) => f,
+            Value::Length(f, Unit::Px) => f * 16.0,
+            _ => 0.0,
+        }
+    }
+
+    pub fn to_em(&self) -> f32 {
+        match *self {
+            Value::Length(f, Unit::Em) => f,
+            Value::Length(f, Unit::Rem) => f,
+            Value::Length(f, Unit::Px) => f * 16.0,
             _ => 0.0,
         }
     }
@@ -87,10 +113,7 @@ impl Value {
 
 /// Parses a CSS source string into a stylesheet.
 pub fn parse(source: String) -> Stylesheet {
-    let mut parser = Parser {
-        pos: 0,
-        input: source,
-    };
+    let mut parser = Parser::new(source);
 
     Stylesheet {
         rules: parser.parse_rules(),
@@ -103,6 +126,10 @@ struct Parser {
 }
 
 impl Parser {
+    fn new(input: String) -> Self {
+        Parser { pos: 0, input }
+    }
+
     /// Parses a list of CSS rules.
     fn parse_rules(&mut self) -> Vec<Rule> {
         let mut rules = Vec::new();
@@ -214,8 +241,18 @@ impl Parser {
         match self.next_char() {
             '0'..='9' => self.parse_length(),
             '#' => self.parse_color(),
+            '"' => self.parse_string(),
             _ => Value::Keyword(self.parse_identifier()),
         }
+    }
+
+    /// Parses a CSS string value.
+    fn parse_string(&mut self) -> Value {
+        // Example: "example string"
+        assert_eq!(self.consume_char(), '"');
+        let value = self.consume_while(|c| c != '"');
+        assert_eq!(self.consume_char(), '"');
+        Value::StringValue(value)
     }
 
     /// Parses a CSS length value.
@@ -236,6 +273,8 @@ impl Parser {
     fn parse_unit(&mut self) -> Unit {
         match &*self.parse_identifier().to_ascii_lowercase() {
             "px" => Unit::Px,
+            "rem" => Unit::Rem,
+            "em" => Unit::Em,
             _ => panic!("unrecognized unit"),
         }
     }
@@ -316,19 +355,20 @@ mod tests {
 
     #[test]
     fn test_parse_stylesheet() {
-        let source = "body { color: red; } h1 { font-size: 20px; }".to_string();
+        let source = "
+            body { color: red; } 
+            h1 { font-size: 20px; } 
+            h2 { font-size: 10em; }"
+            .to_string();
         let stylesheet = parse(source);
 
-        assert_eq!(stylesheet.rules.len(), 2);
+        assert_eq!(stylesheet.rules.len(), 3);
     }
 
     #[test]
     fn test_parse_simple_selector() {
         let source = "#my-id".to_string();
-        let mut parser = Parser {
-            pos: 0,
-            input: source,
-        };
+        let mut parser = Parser::new(source);
         let selector = parser.parse_simple_selector();
 
         assert_eq!(selector.id, Some("my-id".to_string()));
@@ -337,10 +377,7 @@ mod tests {
     #[test]
     fn test_parse_declaration() {
         let source = "font-size: 16px;".to_string();
-        let mut parser = Parser {
-            pos: 0,
-            input: source,
-        };
+        let mut parser = Parser::new(source);
         let declaration = parser.parse_declaration();
 
         assert_eq!(declaration.name, "font-size".to_string());
@@ -348,24 +385,36 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_value() {
+    fn test_parse_px_value() {
         let source = "12px".to_string();
-        let mut parser = Parser {
-            pos: 0,
-            input: source,
-        };
+        let mut parser = Parser::new(source);
         let value = parser.parse_value();
 
         assert_eq!(value, Value::Length(12.0, Unit::Px));
     }
 
     #[test]
+    fn test_parse_rem_value() {
+        let source = "12rem".to_string();
+        let mut parser = Parser::new(source);
+        let value = parser.parse_value();
+
+        assert_eq!(value, Value::Length(12.0, Unit::Rem));
+    }
+
+    #[test]
+    fn test_parse_em_value() {
+        let source = "12em".to_string();
+        let mut parser = Parser::new(source);
+        let value = parser.parse_value();
+
+        assert_eq!(value, Value::Length(12.0, Unit::Em));
+    }
+
+    #[test]
     fn test_parse_color() {
         let source = "#ff6600".to_string();
-        let mut parser = Parser {
-            pos: 0,
-            input: source,
-        };
+        let mut parser = Parser::new(source);
         let value = parser.parse_color();
 
         assert_eq!(
@@ -376,6 +425,27 @@ mod tests {
                 b: 0,
                 a: 255
             })
+        );
+    }
+
+    #[test]
+    fn test_parse_string_value() {
+        let source = "\"black\"".to_string();
+        let mut parser = Parser::new(source);
+
+        let value = parser.parse_string();
+
+        assert_eq!(value, Value::StringValue("black".to_string()));
+    }
+
+    #[test]
+    fn test_parse_stylesheet_with_string_value() {
+        let source = "div { content: \"Hello, World!\"; }".to_string();
+        let stylesheet = parse(source);
+
+        assert_eq!(
+            stylesheet.rules[0].declarations[0].value,
+            Value::StringValue("Hello, World!".to_string())
         );
     }
 }
