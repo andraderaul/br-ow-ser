@@ -43,8 +43,6 @@ Ensure you have Rust installed on your machine. If not, you can install it by fo
    cargo run
    ```
 
-   Ensure you have Rust installed on your machine.
-
 ## Acknowledgments
 
 - Inspired by the [browser engine](https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html) series by Matt Brubeck.
