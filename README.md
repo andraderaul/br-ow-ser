@@ -2,7 +2,7 @@
 
 ## Overview
 
-Welcome to `br-ow-ser`, a toy browser project created for learning purposes. This project is designed to help you explore the fundamentals of web browsers, including HTML parsing, CSS parsing, a layout engine, render tree, a painting engine and more. The goal is to provide a simplified implementation to aid in understanding the core concepts behind browsers.
+Welcome to `br-ow-ser`, a toy browser project created for learning purposes. This project is designed to help me explore the fundamentals of web browsers, including HTML parsing, CSS parsing, a layout engine, render tree, a painting engine and more. The goal is to provide a simplified implementation to aid in understanding the core concepts behind browsers.
 
 ## Disclaimer
 
@@ -28,7 +28,8 @@ This intentional exclusion allows for a focused exploration of fundamental conce
   - Processing Instruction;
   - Error handling (Non-well-formed markup).
 
-- [x] **CSS Parsing:** Parses CSS strings to handle styling and layout.
+- [x] **CSS Parsing:** Parses CSS strings to handle styling and layout. This parser works for a few subset of CSS syntax:
+  - Selector (Simple Selector);
 - [x] **Render Tree:** Combines information from the DOM tree and layout engine for rendering.
 - [x] **Layout Engine:** Determines the size and position of each element on the page.
 - [x] **Painting Engine:** Draws the render tree on the screen.
@@ -58,5 +59,7 @@ Ensure you have Rust installed on your machine. If not, you can install it by fo
 - Inspired by "The Hard Parts of UI Development" course by Will Sentance on [Frontend Masters](https://frontendmasters.com/courses/hard-parts-ui-dev/).
 
 - [HTML specification](https://html.spec.whatwg.org/multipage/introduction.html)
+
+- [W3C CSS ](https://www.w3.org/TR/CSS/#css)
 
 - [rust-cssparser](https://github.com/servo/rust-cssparsera)
