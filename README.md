@@ -62,4 +62,4 @@ Ensure you have Rust installed on your machine. If not, you can install it by fo
 
 - [W3C CSS ](https://www.w3.org/TR/CSS/#css)
 
-- [rust-cssparser](https://github.com/servo/rust-cssparsera)
+- [rust-cssparser](https://github.com/servo/rust-cssparser)
