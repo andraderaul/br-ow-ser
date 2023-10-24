@@ -11,6 +11,7 @@ pub mod css;
 pub mod dom;
 mod dom_test;
 pub mod html;
+mod html_test;
 pub mod layout;
 pub mod painting;
 pub mod pdf;
