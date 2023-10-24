@@ -52,6 +52,31 @@ Ensure you have Rust installed on your machine. If not, you can install it by fo
    cargo run
    ```
 
+## What I learned in this journey
+
+In this journey, I delved into several key aspects:
+
+1. **Rust Programming:** Explored Rust, leveraging its performance and safety features.
+
+2. **Web Development Basics:** Covered core concepts like HTML, CSS, and the Document Object Model (DOM).
+
+3. **Toy Rendering Engine Features:**
+
+   - HTML and CSS Parsing
+   - Layout Engines
+   - Render Trees
+   - Painting Engines
+
+4. **HTML Parser in Rust:** Developed an HTML parser in Rust, enabling the processing of HTML documents.
+
+5. **CSS Parser in Rust:** Developed a CSS parser in Rust, including rules, selectors, and unit conversions.
+
+6. **Styling the DOM:** Explored styling elements in the DOM using specified CSS values, considering selector matching and specificity.
+
+7. **Unit Conversions:** Extended unit conversions to support various units such as pixels, percentages, em, and rem.
+
+8. **Testing:** Emphasized the importance of testing, creating tests for different value types and scenarios.
+
 ## Acknowledgments
 
 - Inspired by the [browser engine](https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html) series by Matt Brubeck.
