@@ -58,8 +58,8 @@ pub fn style_tree<'a>(root: &'a Node, stylesheet: &'a Stylesheet) -> StyledNode<
         specified_values: match root.node_type {
             NodeType::Element(ref elem) => specified_values(elem, stylesheet),
             NodeType::Text(_) => HashMap::new(),
-            //TODO: finish this later
-            _ => todo!(),
+            NodeType::Comment(_) => HashMap::new(),
+            NodeType::ProcessingInstruction(_) => HashMap::new(),
         },
         children: root
             .children
@@ -140,7 +140,10 @@ fn matches_simple_selector(elem: &ElementData, selector: &SimpleSelector) -> boo
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::css::{Declaration, Unit};
+    use crate::{
+        css::{Declaration, Unit},
+        dom::{comment, text},
+    };
 
     #[test]
     fn test_styled_node_value() {
@@ -289,6 +292,150 @@ mod tests {
             styled_node_without_display.display(),
             Display::Inline,
             "Display property is not specified, should return default value"
+        );
+    }
+
+    #[test]
+    fn style_tree_styles_element() {
+        // Create a simple stylesheet with a rule
+        let stylesheet = Stylesheet {
+            rules: vec![Rule {
+                selectors: vec![Selector::Simple(SimpleSelector {
+                    tag_name: Some("div".to_string()),
+                    id: None,
+                    class: vec![],
+                })],
+                declarations: vec![Declaration {
+                    name: "color".to_string(),
+                    value: Value::Keyword("red".to_string()),
+                }],
+            }],
+        };
+
+        // Create a simple DOM tree with a div element
+        let root = Node {
+            node_type: NodeType::Element(ElementData {
+                tag_name: "div".to_string(),
+                attributes: HashMap::new(),
+            }),
+            children: vec![],
+        };
+
+        // Apply styles to the DOM tree
+        let styled_node = style_tree(&root, &stylesheet);
+
+        // Check that the specified color value is present in the styled tree
+        assert_eq!(
+            styled_node.value("color"),
+            Some(Value::Keyword("red".to_string()))
+        );
+
+        // Check that the styled tree has the correct node type and tag name
+        assert_eq!(
+            styled_node.node.node_type,
+            NodeType::Element(ElementData {
+                tag_name: "div".to_string(),
+                attributes: HashMap::new()
+            })
+        );
+    }
+
+    #[test]
+    fn style_tree_styles_text_node() {
+        // Create a simple stylesheet with a rule
+        let stylesheet = Stylesheet {
+            rules: vec![Rule {
+                selectors: vec![Selector::Simple(SimpleSelector {
+                    tag_name: Some("p".to_string()),
+                    id: None,
+                    class: vec![],
+                })],
+                declarations: vec![Declaration {
+                    name: "font-size".to_string(),
+                    value: Value::Length(12.0, Unit::Px),
+                }],
+            }],
+        };
+
+        // Create a DOM tree with a text node inside a paragraph
+        let root = Node {
+            node_type: NodeType::Element(ElementData {
+                tag_name: "p".to_string(),
+                attributes: HashMap::new(),
+            }),
+            children: vec![text("Hello, world!".to_string())],
+        };
+
+        // Apply styles to the DOM tree
+        let styled_node = style_tree(&root, &stylesheet);
+
+        // Check that the specified font-size value is present in the styled text node
+        assert_eq!(
+            styled_node.value("font-size"),
+            Some(Value::Length(12.0, Unit::Px))
+        );
+
+        // Check that the styled text node has the correct content
+        assert_eq!(
+            styled_node.children.first().map(|child| {
+                if let NodeType::Text(ref text) = child.node.node_type {
+                    text.clone()
+                } else {
+                    String::new()
+                }
+            }),
+            Some("Hello, world!".to_string())
+        );
+    }
+
+    #[test]
+    fn style_tree_styles_comment_node() {
+        // Create a simple stylesheet with a rule
+        let stylesheet = Stylesheet {
+            rules: vec![Rule {
+                selectors: vec![Selector::Simple(SimpleSelector {
+                    tag_name: Some("div".to_string()),
+                    id: None,
+                    class: vec![],
+                })],
+                declarations: vec![Declaration {
+                    name: "color".to_string(),
+                    value: Value::Keyword("blue".to_string()),
+                }],
+            }],
+        };
+
+        // Create a DOM tree with a comment node inside a div
+        let root = Node {
+            node_type: NodeType::Element(ElementData {
+                tag_name: "div".to_string(),
+                attributes: HashMap::new(),
+            }),
+            children: vec![comment("This is a comment".to_string())],
+        };
+
+        // Apply styles to the DOM tree
+        let styled_tree = style_tree(&root, &stylesheet);
+
+        // Check that the specified color value is not present in the styled comment node
+        assert_eq!(
+            styled_tree
+                .children
+                .first()
+                .and_then(|child| child.specified_values.get("color")),
+            None
+        );
+
+        // Check that the styled comment node has the correct content
+        assert_eq!(
+            styled_tree.children.first().map(|child| {
+                if let NodeType::Comment(ref comment) = child.node.node_type {
+                    comment.clone()
+                } else {
+                    String::new()
+                }
+            }),
+            Some("This is a comment".to_string())
         );
     }
 }
