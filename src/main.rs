@@ -8,6 +8,7 @@ use std::fs::File;
 use std::io::{BufWriter, Read};
 
 pub mod css;
+mod css_test;
 pub mod dom;
 mod dom_test;
 pub mod html;
