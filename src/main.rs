@@ -9,6 +9,7 @@ use std::io::{BufWriter, Read};
 
 pub mod css;
 pub mod dom;
+mod dom_test;
 pub mod html;
 pub mod layout;
 pub mod painting;
