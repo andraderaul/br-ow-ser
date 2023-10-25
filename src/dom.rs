@@ -69,10 +69,7 @@ pub fn elem(name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
 pub fn processing_instruction(target: String, data: String) -> Node {
     Node {
         children: Vec::new(),
-        node_type: NodeType::ProcessingInstruction(ProcessingInstructionData {
-            target: target,
-            data: data,
-        }),
+        node_type: NodeType::ProcessingInstruction(ProcessingInstructionData { target, data }),
     }
 }
 
