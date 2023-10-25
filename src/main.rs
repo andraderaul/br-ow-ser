@@ -17,6 +17,7 @@ pub mod layout;
 pub mod painting;
 pub mod pdf;
 pub mod style;
+pub mod style_test;
 
 fn main() {
     // Parse command-line options:
