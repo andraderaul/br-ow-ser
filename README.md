@@ -46,10 +46,32 @@ Ensure you have Rust installed on your machine. If not, you can install it by fo
    cd br-ow-ser
    ```
 
-2. Build and run the project:
+2. Building and Running with Optimizations:
+
+   - For optimized builds, use `cargo build --release` to build and `cargo run --release` to run.
+
+3. Customizing Input Files:
+
+   - By default, br-ow-ser loads `test.html` and `test.css` from the examples directory.
+   - To specify custom HTML and CSS files, use the `--html` and `--css` arguments:
 
    ```bash
-   cargo run
+     ./target/debug/br-ow-ser --html examples/custom.html --css examples/custom.css
+   ```
+
+4. Output Configuration:
+
+   - The rendered page is saved as `output.png` by default.
+   - To change the output filename, use the `-o` option:
+
+   ```bash
+     ./target/debug/br-ow-ser --html examples/test.html --css examples/test.css -o custom_output.png
+   ```
+
+   - To switch to PDF output, add `--format pdf`:
+
+   ```bash
+     ./target/debug/br-ow-ser --html examples/test.html --css examples/test.css -o custom_output.pdf --format pdf
    ```
 
 ## What I learned in this journey
