@@ -1,4 +1,4 @@
-use crate::css::{Color, Value};
+use crate::cssom::{Color, Value};
 use crate::layout::{AnonymousBlock, BlockNode, InlineNode, LayoutBox, Rect};
 
 /// Represents a canvas with pixels for painting.

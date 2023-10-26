@@ -1,4 +1,4 @@
-use crate::css::{Rule, Selector, SimpleSelector, Specificity, Stylesheet, Value};
+use crate::cssom::{Rule, Selector, SimpleSelector, Specificity, Stylesheet, Value};
 use crate::dom::{ElementData, Node, NodeType};
 use std::collections::HashMap;
 
