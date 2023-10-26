@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::css;
+    use crate::cssom;
 
     #[test]
     fn test_parse_stylesheet() {
@@ -21,7 +22,7 @@ mod tests {
 
         assert_eq!(
             stylesheet.rules.first().unwrap().selectors.first().unwrap(),
-            &css::Selector::Simple(css::SimpleSelector {
+            &cssom::Selector::Simple(cssom::SimpleSelector {
                 tag_name: None,
                 id: Some("my-id".to_string()),
                 class: vec![]
@@ -42,9 +43,9 @@ mod tests {
                 .declarations
                 .first()
                 .unwrap(),
-            &css::Declaration {
+            &cssom::Declaration {
                 name: "font-size".to_string(),
-                value: css::Value::Length(16.0, css::Unit::Px)
+                value: cssom::Value::Length(16.0, cssom::Unit::Px)
             }
         )
     }
@@ -63,7 +64,7 @@ mod tests {
                 .first()
                 .unwrap()
                 .value,
-            css::Value::Length(12.0, css::Unit::Px)
+            cssom::Value::Length(12.0, cssom::Unit::Px)
         )
     }
 
@@ -81,7 +82,7 @@ mod tests {
                 .first()
                 .unwrap()
                 .value,
-            css::Value::Length(12.0, css::Unit::Rem)
+            cssom::Value::Length(12.0, cssom::Unit::Rem)
         );
     }
 
@@ -99,7 +100,7 @@ mod tests {
                 .first()
                 .unwrap()
                 .value,
-            css::Value::Length(12.0, css::Unit::Em)
+            cssom::Value::Length(12.0, cssom::Unit::Em)
         );
     }
 
@@ -117,7 +118,7 @@ mod tests {
                 .first()
                 .unwrap()
                 .value,
-            css::Value::ColorValue(css::Color {
+            cssom::Value::ColorValue(cssom::Color {
                 r: 255,
                 g: 102,
                 b: 0,
@@ -140,7 +141,7 @@ mod tests {
                 .first()
                 .unwrap()
                 .value,
-            css::Value::StringValue("Hello, World!".to_string())
+            cssom::Value::StringValue("Hello, World!".to_string())
         );
     }
 }

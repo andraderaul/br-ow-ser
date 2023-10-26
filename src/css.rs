@@ -1,123 +1,13 @@
 //! A simple parser for a tiny subset of CSS.
 
-/// Represents a parsed stylesheet with rules.
-#[derive(Debug)]
-pub struct Stylesheet {
-    pub rules: Vec<Rule>,
-}
-
-/// Represents a CSS rule with selectors and declarations.
-#[derive(Debug)]
-pub struct Rule {
-    pub selectors: Vec<Selector>,
-    pub declarations: Vec<Declaration>,
-}
-
-/// Represents a CSS selector.
-#[derive(Debug, PartialEq)]
-pub enum Selector {
-    Simple(SimpleSelector),
-}
-
-/// Represents a simple CSS selector with tag name, id, and class.
-#[derive(Debug, PartialEq)]
-pub struct SimpleSelector {
-    pub tag_name: Option<String>,
-    pub id: Option<String>,
-    pub class: Vec<String>,
-}
-
-/// Represents a CSS declaration with a property name and value.
-#[derive(Debug, PartialEq)]
-pub struct Declaration {
-    pub name: String,
-    pub value: Value,
-}
-
-/// Represents a CSS value.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Value {
-    Keyword(String),
-    Length(f32, Unit),
-    ColorValue(Color),
-    StringValue(String),
-}
-
-/// Represents a CSS unit.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Unit {
-    Px,
-    Rem,
-    Em,
-}
-
-/// Represents a color in CSS.
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct Color {
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
-    pub a: u8,
-}
-
-impl Copy for Color {}
-
-/// Represents the specificity of a CSS selector.
-pub type Specificity = (usize, usize, usize);
-
-impl Selector {
-    /// Calculates the specificity of the selector.
-    pub fn specificity(&self) -> Specificity {
-        // http://www.w3.org/TR/selectors/#specificity
-        let Selector::Simple(ref simple) = *self;
-        let a = simple.id.iter().count();
-        let b = simple.class.len();
-        let c = simple.tag_name.iter().count();
-
-        (a, b, c)
-    }
-}
-
-impl Value {
-    // Needs improvement EM and REM
-    // because the length is relative to a font-size
-
-    /// Converts a CSS value to pixels.
-    pub fn to_px(&self) -> f32 {
-        match *self {
-            Value::Length(f, Unit::Px) => f,
-            Value::Length(f, Unit::Rem) => f / 16.0,
-            Value::Length(f, Unit::Em) => f / 16.0,
-            _ => 0.0,
-        }
-    }
-
-    pub fn to_rem(&self) -> f32 {
-        match *self {
-            Value::Length(f, Unit::Rem) => f,
-            Value::Length(f, Unit::Em) => f,
-            Value::Length(f, Unit::Px) => f * 16.0,
-            _ => 0.0,
-        }
-    }
-
-    pub fn to_em(&self) -> f32 {
-        match *self {
-            Value::Length(f, Unit::Em) => f,
-            Value::Length(f, Unit::Rem) => f,
-            Value::Length(f, Unit::Px) => f * 16.0,
-            _ => 0.0,
-        }
-    }
-}
+use crate::cssom;
+use crate::cssom::{Color, Declaration, Rule, Selector, SimpleSelector, Stylesheet, Unit, Value};
 
 /// Parses a CSS source string into a stylesheet.
 pub fn parse(source: String) -> Stylesheet {
     let mut parser = Parser::new(source);
 
-    Stylesheet {
-        rules: parser.parse_rules(),
-    }
+    cssom::stylesheet(parser.parse_rules())
 }
 
 pub struct Parser {
@@ -126,6 +16,7 @@ pub struct Parser {
 }
 
 impl Parser {
+    // Create a new parser struct
     fn new(input: String) -> Self {
         Parser { pos: 0, input }
     }
@@ -146,10 +37,7 @@ impl Parser {
 
     /// Parses a single CSS rule.
     fn parse_rule(&mut self) -> Rule {
-        Rule {
-            selectors: self.parse_selectors(),
-            declarations: self.parse_declarations(),
-        }
+        cssom::rule(self.parse_selectors(), self.parse_declarations())
     }
 
     /// Parses a list of CSS selectors.
@@ -175,11 +63,7 @@ impl Parser {
 
     /// Parses a simple CSS selector.
     fn parse_simple_selector(&mut self) -> SimpleSelector {
-        let mut selector = SimpleSelector {
-            tag_name: None,
-            id: None,
-            class: Vec::new(),
-        };
+        let mut selector = cssom::simple_selector(None, None, Vec::new());
 
         while !self.eof() {
             match self.next_char() {
@@ -230,10 +114,7 @@ impl Parser {
         self.consume_whitespace();
         assert_eq!(self.consume_char(), ';');
 
-        Declaration {
-            name: property_name,
-            value: value,
-        }
+        cssom::declaration(property_name, value)
     }
 
     /// Parses a CSS value.
