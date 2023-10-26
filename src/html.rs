@@ -15,7 +15,20 @@ struct Parser {
     input: String,
 }
 
+/// Parse the entire HTML document and return the root node of the DOM tree.
+pub fn parse(source: String) -> dom::Node {
+    let mut nodes = Parser::new(source).parse_nodes();
+
+    // If the document contains a root element, just return it. Otherwise, create one.
+    if nodes.len() == 1 {
+        nodes.swap_remove(0)
+    } else {
+        dom::elem("html".to_string(), HashMap::new(), nodes)
+    }
+}
+
 impl Parser {
+    // Create a new parser struct
     fn new(input: String) -> Self {
         Parser { pos: 0, input }
     }
@@ -200,17 +213,5 @@ impl Parser {
         }
 
         dom::comment(comment)
-    }
-}
-
-/// Parse the entire HTML document and return the root node of the DOM tree.
-pub fn parse(source: String) -> dom::Node {
-    let mut nodes = Parser::new(source).parse_nodes();
-
-    // If the document contains a root element, just return it. Otherwise, create one.
-    if nodes.len() == 1 {
-        nodes.swap_remove(0)
-    } else {
-        dom::elem("html".to_string(), HashMap::new(), nodes)
     }
 }
