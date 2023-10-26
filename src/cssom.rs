@@ -84,35 +84,39 @@ impl Value {
     pub fn to_px(&self) -> f32 {
         match *self {
             Value::Length(f, Unit::Px) => f,
-            Value::Length(f, Unit::Rem) => f / 16.0,
-            Value::Length(f, Unit::Em) => f / 16.0,
+            Value::Length(f, Unit::Rem) => f * 16.0,
+            Value::Length(f, Unit::Em) => f * 16.0,
             _ => 0.0,
         }
     }
 
+    /// Converts a CSS value to rems.
     pub fn to_rem(&self) -> f32 {
         match *self {
             Value::Length(f, Unit::Rem) => f,
             Value::Length(f, Unit::Em) => f,
-            Value::Length(f, Unit::Px) => f * 16.0,
+            Value::Length(f, Unit::Px) => f / 16.0,
             _ => 0.0,
         }
     }
 
+    /// Converts a CSS value to ems.
     pub fn to_em(&self) -> f32 {
         match *self {
             Value::Length(f, Unit::Em) => f,
             Value::Length(f, Unit::Rem) => f,
-            Value::Length(f, Unit::Px) => f * 16.0,
+            Value::Length(f, Unit::Px) => f / 16.0,
             _ => 0.0,
         }
     }
 }
 
+/// Creates a Stylesheet with the given rules.
 pub fn stylesheet(rules: Vec<Rule>) -> Stylesheet {
     Stylesheet { rules }
 }
 
+/// Creates a Rule with the given selectors and declarations.
 pub fn rule(selectors: Vec<Selector>, declarations: Vec<Declaration>) -> Rule {
     Rule {
         selectors,
@@ -120,6 +124,7 @@ pub fn rule(selectors: Vec<Selector>, declarations: Vec<Declaration>) -> Rule {
     }
 }
 
+/// Creates a SimpleSelector with the specified components.
 pub fn simple_selector(
     tag_name: Option<String>,
     id: Option<String>,
@@ -132,6 +137,7 @@ pub fn simple_selector(
     }
 }
 
+/// Creates a Declaration with the specified name and value.
 pub fn declaration(name: String, value: Value) -> Declaration {
     Declaration { name, value }
 }
