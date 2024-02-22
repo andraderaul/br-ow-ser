@@ -5,7 +5,7 @@ use image::DynamicImage::ImageRgba8;
 
 use std::default::Default;
 use std::fs::File;
-use std::io::{BufWriter, Read};
+use std::io::{self, BufWriter, Read};
 
 pub mod css;
 mod css_test;
@@ -42,8 +42,14 @@ fn main() {
     };
 
     // Read input files:
-    let html = read_source(str_arg("h", "examples/test.html"));
-    let css = read_source(str_arg("c", "examples/test.css"));
+    let html = read_source(&str_arg("h", "examples/test.html")).unwrap_or_else(|err| {
+        eprintln!("Error reading HTML file: {}", err);
+        String::new()
+    });
+    let css = read_source(&str_arg("c", "examples/test.css")).unwrap_or_else(|err| {
+        eprintln!("Error reading CSS file: {}", err);
+        String::new()
+    });
 
     // Since we don't have an actual window, hard-code the "viewport" size.
     let mut viewport: layout::Dimensions = Default::default();
@@ -85,11 +91,9 @@ fn main() {
     }
 }
 
-fn read_source(filename: String) -> String {
-    let mut str = String::new();
-    File::open(filename)
-        .unwrap()
-        .read_to_string(&mut str)
-        .unwrap();
-    str
+fn read_source(filename: &str) -> Result<String, io::Error> {
+    let mut file = File::open(filename)?;
+    let mut content = String::new();
+    file.read_to_string(&mut content)?;
+    Ok(content)
 }
