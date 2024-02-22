@@ -1,9 +1,11 @@
 extern crate getopts;
 extern crate image;
 
+use getopts::Options;
 use image::DynamicImage::ImageRgba8;
 
 use std::default::Default;
+use std::env;
 use std::fs::File;
 use std::io::{self, BufWriter, Read};
 
@@ -23,13 +25,16 @@ pub mod style_test;
 
 fn main() {
     // Parse command-line options:
-    let mut opts = getopts::Options::new();
-    opts.optopt("h", "html", "HTML document", "FILENAME");
-    opts.optopt("c", "css", "CSS stylesheet", "FILENAME");
-    opts.optopt("o", "output", "Output file", "FILENAME");
-    opts.optopt("f", "format", "Output file format", "png | pdf");
+    let args: Vec<String> = env::args().skip(1).collect();
+    let opts = parse_args();
+    let matches = match opts.parse(&args) {
+        Ok(m) => m,
+        Err(e) => {
+            eprintln!("Error parsing command line options: {}", e);
+            std::process::exit(1);
+        }
+    };
 
-    let matches = opts.parse(std::env::args().skip(1)).unwrap();
     let str_arg = |flag: &str, default: &str| -> String {
         matches.opt_str(flag).unwrap_or(default.to_string())
     };
@@ -38,7 +43,10 @@ fn main() {
     let png = match &str_arg("f", "png")[..] {
         "png" => true,
         "pdf" => false,
-        x => panic!("Unknown output format: {}", x),
+        x => {
+            eprintln!("Unknown output format: {}", x);
+            std::process::exit(1);
+        }
     };
 
     // Read input files:
@@ -89,6 +97,15 @@ fn main() {
     } else {
         println!("Error saving output as {}", filename)
     }
+}
+
+fn parse_args() -> Options {
+    let mut opts = Options::new();
+    opts.optopt("h", "html", "HTML document", "FILENAME");
+    opts.optopt("c", "css", "CSS stylesheet", "FILENAME");
+    opts.optopt("o", "output", "Output file", "FILENAME");
+    opts.optopt("f", "format", "Output file format", "png | pdf");
+    opts
 }
 
 fn read_source(filename: &str) -> Result<String, io::Error> {
